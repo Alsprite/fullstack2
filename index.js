@@ -2,29 +2,7 @@ const { response } = require('express')
 const express = require('express')
 const app = express()
 const cors = require('cors')
-
-let persons = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456"
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523"
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendick",
-    number: "39-23-6423122"
-  }
-]
+const Person = require("./models/person")
 
 const requestLogger = (request, response, next) => {
   console.log('Method:', request.method)
@@ -46,9 +24,14 @@ app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
 })
 
-app.get('/api/info', (req, res) => {
-  res.send(`<h3>Phonebook has info for ${persons.length} persons <br> ${Date()} </h3>`)
-})
+app.get("/info", (request, response) => {
+  Person.find({}).then(persons => {
+    persons.map(person => person.toJSON());
+    response.send(
+      `<p>Puhelinluettelossa ${persons.length} henkilön tiedot</p>`
+    );
+  });
+});
 
 const generateId = () => {
   const maxId = persons.length > 0
@@ -70,7 +53,7 @@ app.post('/api/persons', (request, response) => {
       error: 'Number missing'
     })
   }
-  if (body.name == persons.find(person => person.name)) {
+  if (body.name == Person.find(person => person.name)) {
     return response.status(400).json({
       error: 'Name must be unique'
     })
@@ -82,31 +65,36 @@ app.post('/api/persons', (request, response) => {
     id: generateId(),
   }
 
-  persons = persons.concat(person)
+  Person = Person.concat(person)
 
   response.json(person)
 })
 
-app.get('/api/persons', (req, res) => {
-  res.json(persons)
-})
+app.get("/api/persons", (request, response) => {
+  Person.find({}).then(persons => {
+    response.json(persons.map(person => person.toJSON()));
+  });
+});
 
-app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  persons = persons.filter(person => person.id !== id)
+app.delete("/api/persons/:id", (request, response, next) => {
+  Person.findByIdAndRemove(request.params.id)
+    .then(result => {
+      response.status(204).end();
+    })
+    .catch(error => next(error));
+});
 
-  response.status(204).end()
-})
-
-app.get('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
-  const person = persons.find(person => person.id === id)
-  if (person) {
-    res.send(person)
-  } else {
-    res.status(404).end()
-  }
-})
+app.get("/api/persons/:id", (request, response, next) => {
+  Person.findById(request.params.id)
+    .then(person => {
+      if (person) {
+        response.json(person.toJSON());
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch(error => next(error));
+});
 
 const PORT = 3001
 app.listen(PORT, () => {

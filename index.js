@@ -40,35 +40,39 @@ const generateId = () => {
   return maxId + 1
 }
 
-app.post('/api/persons', (request, response) => {
-  const body = request.body
+app.post("/api/persons", (request, response, next) => {
+  const body = request.body;
 
-  if (!body.name) {
-    return response.status(400).json({ 
-      error: 'Name missing' 
-    })
-  }
-  if (!body.number) {
+  if (body.name === undefined) {
     return response.status(400).json({
-      error: 'Number missing'
-    })
-  }
-  if (body.name == Person.find(person => person.name)) {
-    return response.status(400).json({
-      error: 'Name must be unique'
-    })
+      error: "name missing"
+    });
   }
 
-  const person = {
+  if (body.number === undefined) {
+    return response.status(400).json({
+      error: "number missing"
+    });
+  }
+
+  const person = new Person({
     name: body.name,
     number: body.number,
-    id: generateId(),
-  }
+    id: Math.floor(Math.random() * 100000)
+  });
 
-  Person = Person.concat(person)
-
-  response.json(person)
-})
+  person
+    .save()
+    .then(savedNote => savedNote.toJSON())
+    .then(savedAndFormattedPerson => {
+      response.json(savedAndFormattedPerson);
+    })
+    .catch(error => {
+      return response.status(400).json({
+        error: "name must be unique"
+      });
+    });
+});
 
 app.get("/api/persons", (request, response) => {
   Person.find({}).then(persons => {

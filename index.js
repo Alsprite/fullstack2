@@ -20,6 +20,19 @@ app.use(cors())
 
 app.use(express.static('build'))
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
+// tämä tulee kaikkien muiden middlewarejen rekisteröinnin jälkeen!
+app.use(errorHandler)
+
 app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
 })
@@ -39,7 +52,17 @@ const generateId = () => {
     : 0
   return maxId + 1
 }
-
+app.get('/api/notes/:id', (request, response, next) => {
+  Note.findById(request.params.id)
+    .then(note => {
+      if (note) {
+        response.json(note)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
+})
 app.post("/api/persons", (request, response, next) => {
   const body = request.body;
 
@@ -88,17 +111,17 @@ app.delete("/api/persons/:id", (request, response, next) => {
     .catch(error => next(error));
 });
 
-app.get("/api/persons/:id", (request, response, next) => {
-  Person.findById(request.params.id)
-    .then(person => {
-      if (person) {
-        response.json(person.toJSON());
+app.get('/api/notes/:id', (request, response, next) => {
+  Note.findById(request.params.id)
+    .then(note => {
+      if (note) {
+        response.json(note)
       } else {
-        response.status(404).end();
+        response.status(404).end()
       }
     })
-    .catch(error => next(error));
-});
+    .catch(error => next(error))
+})
 
 const PORT = 3001
 app.listen(PORT, () => {

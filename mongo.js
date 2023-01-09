@@ -15,7 +15,8 @@ mongoose.connect(url)
 
 const noteSchema = new mongoose.Schema({
   name: String,
-  number: String
+  number: String,
+  minlength: 3
 })
 
 const Person = mongoose.model('Person', noteSchema)

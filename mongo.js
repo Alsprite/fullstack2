@@ -14,10 +14,15 @@ mongoose.set('strictQuery', true);
 mongoose.connect(url)
 
 const noteSchema = new mongoose.Schema({
-  name: String,
-  number: String,
-  minlength: 3
-})
+name: {
+  type: String,
+  minlength: 3,
+  required: true
+},
+number: {
+  type: Number,
+  required: true
+}})
 
 const Person = mongoose.model('Person', noteSchema)
 

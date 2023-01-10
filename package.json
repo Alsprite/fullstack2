@@ -8,7 +8,7 @@
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:ui": "rm -rf build && cd ../fullstack/part3.9/ && npm run build && cp -r build ../notes-backend",
-    "deploy": "fly deploy"
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",

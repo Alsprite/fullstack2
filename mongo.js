@@ -28,16 +28,16 @@ const person = new Person({
   number: numberInput
 })
 
-if ((nameInput != undefined) && (numberInput != undefined)) {
-  person.save().then(result => {
-      console.log(`lisätään ${nameInput} numero ${numberInput} luetteloon`)
-      mongoose.connection.close()
+if ((nameInput !== undefined) && (numberInput !== undefined)) {
+  person.save().then(() => {
+    console.log(`lisätään ${nameInput} numero ${numberInput} luetteloon`)
+    mongoose.connection.close()
   })
 } else {
   Person.find({}).then(result => {
-      result.forEach(person => {
-          console.log(person.name + " " + person.number)
-      })
-      mongoose.connection.close()
+    result.forEach(person => {
+      console.log(person.name + ' ' + person.number)
+    })
+    mongoose.connection.close()
   })
 }

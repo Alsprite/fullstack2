@@ -4,7 +4,8 @@ const password = process.argv[2]
 // const newName = process.argv[3]
 // const newNumber = process.argv[4]
 
-const url = `mongodb+srv://Meikam0ngo:${password}@cluster0.w5oruqa.mongodb.net/?retryWrites=true&w=majority`
+const url = process.env.MONGODB_URI;
+
 mongoose.set('strictQuery', true)
 
 mongoose.connect(url, { useNewUrlParser: true }).then(() => {

@@ -7,8 +7,8 @@ if (process.argv.length < 3) {
 const nameInput = process.argv[3]
 const numberInput = process.argv[4]
 
-const url =
-`mongodb+srv://Meikam0ngo:${password}@cluster0.w5oruqa.mongodb.net/?retryWrites=true&w=majority`
+const url = process.env.MONGODB_URI;
+console.log('connecting to ', url)
 
 mongoose.connect(url, {
   useNewUrlParser: true
